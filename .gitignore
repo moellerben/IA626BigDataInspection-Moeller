@@ -112,3 +112,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+trip_data_4.csv
+trip_data_4_head.csv
+trip_data_4_head_output.csv
+trip_data_4_skip.csv
+trip_data_4_small.csv
