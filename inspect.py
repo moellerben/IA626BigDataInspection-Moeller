@@ -127,7 +127,7 @@ for row in reader:
         maxdt = dodt
     if row[11] != '':
         pulat = float(row[11])
-        if pulat is not None and pulat != 0 and 39.95258 < pulat < 41.7658:
+        if pulat is not None and pulat != 0 and 38.0293 < pulat < 42.65565:
             if maxlat is None:
                 maxlat = pulat
             else:
@@ -140,7 +140,7 @@ for row in reader:
             avgpulatc += 1
     if row[10] != '':
         pulon = float(row[10])
-        if pulon is not None and pulon != 0 and -75.16522 < pulon < -72.67337:
+        if pulon is not None and pulon != 0 and -78.47667 < pulon < -70.62036:
             if maxlon is None:
                 maxlon = pulon
             else:
@@ -153,14 +153,14 @@ for row in reader:
             avgpulonc += 1
     if row[13] != '':
         dolat = float(row[13])
-        if dolat is not None and dolat != 0 and 39.95258 < dolat < 41.7658:
+        if dolat is not None and dolat != 0 and 38.0293 < dolat < 42.65565:
             maxlat = max(maxlat, dolat)
             minlat = min(minlat, dolat)
             avgdolat = (avgdolat*avgdolatc + dolat) / (avgdolatc+1)
             avgdolatc += 1
     if row[12] != '':
         dolon = float(row[12])
-        if dolon is not None and dolon != 0 and -75.16522 < dolon < -72.67337:
+        if dolon is not None and dolon != 0 and -78.47667 < dolon < -70.62036:
             maxlon = max(maxlon, dolon)
             minlon = min(minlon, dolon)
             avgdolon = (avgdolon*avgdolonc + dolon) / (avgdolonc+1)
