@@ -53,16 +53,53 @@ Dataset: Group 4
      - Minimum corner: -74.069908, -159.435000
      - Maximum corner: 74.035930, 100.987900
      - ![Global Limits Map](/img/globallimits.png)
-   - Constrained to NYC area (Charlottesville, VA to Rockford, MA):
-     - Minimum corner: 
-     - Maximum corner: 
-     - ![Regional Limits Map](/img/regionallimits.png)
+   - I kept trying to find a constraint where it would be reasonably limited to the NYC area, but I kept ending up with maximum and minimum lat/lons that were less than a mile from the corners of my boundaries despite them being 350mi away from NYC
 6. What is the average trip distance?
-   - Odometer distance: 
+   - Odometer distance: 2.862899
    - ![Odometer Distance Histogram](/img/odohist.png)
-   - Haversine distance:
+   - Haversine distance: 11.55658
    - ![Haversine Distance Histogram](/img/havhist.png)
 7. What are the distinct values for each field?
+   - Vendor ID: 
+   | Vendor ID | Count |
+   | CMT  | 7,582,519 |
+   | VTS | 7,517,943 |
+   - Rate Codes: 
+   | Rate Code | Count |
+   | --- | --- |
+   | 0 | 1,145 |
+   | 1 | 14,768,822 |
+   | 2 | 254,687 |
+   | 3 | 21,937 |
+   | 4 | 14,566 |
+   | 5 | 39,118 |
+   | 6 | 164 |
+   | 7 | 1 |
+   | 8 | 2 |
+   | 9 | 1 |
+   | 65 | 2 |
+   | 77 | 1 |
+   | 206 | 1 |
+   | 208 | 1 |
+   | 210 | 14 |
+   - Store and Forward Flags
+   | Flag | Count |
+   | --- | --- |
+   | `NULL` | 7,518,657 |
+   | N | 7,451,835 |
+   | Y | 129,970 |
+   - Passenger Counts
+   | Passenger Count | Count |
+   | --- | --- |
+   | 0 | 229|
+   | 1 | 10,707,067 | 
+   | 2 | 1,985,741 |
+   | 3 | 609,849 |
+   | 4 | 298,146 |
+   | 5 | 890,115 |
+   | 6 | 609,313 |
+   | 8 | 1 |
+   | 9 | 1 |
 8. For other numeric types besides lat and lon, what are the min and max values?
 9. Create a chart which shows the average number of passengers each hour of the day.
 10. Create a new CSV file which has only one out of every thousand rows.
