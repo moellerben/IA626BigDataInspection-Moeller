@@ -63,6 +63,7 @@ Dataset: Group 4
    - Vendor ID: 
    
    | Vendor ID | Count |
+   | --- | --- |
    | CMT  | 7,582,519 |
    | VTS | 7,517,943 |
    - Rate Codes: 
