@@ -52,13 +52,13 @@ Dataset: Group 4
    - Constrained to global limits:
      - Minimum corner: -74.069908, -159.435000
      - Maximum corner: 74.035930, 100.987900
-     - ![Global Limits Map](/img/globallimits.png)
+     ![Global Limits Map](/img/globallimits.png)
    - I kept trying to find a constraint where it would be reasonably limited to the NYC area, but I kept ending up with maximum and minimum lat/lons that were less than a mile from the corners of my boundaries despite them being 350mi away from NYC
 6. What is the average trip distance?
    - Odometer distance: 2.862899
-   - ![Odometer Distance Histogram](/img/odohist.png)
+   ![Odometer Distance Histogram](/img/odohist.png)
    - Haversine distance: 11.55658
-   - ![Haversine Distance Histogram](/img/havhist.png)
+   ![Haversine Distance Histogram](/img/havhist.png)
 7. What are the distinct values for each field?
    - Vendor ID: 
    
@@ -106,6 +106,27 @@ Dataset: Group 4
    | 8 | 1 |
    | 9 | 1 |
 8. For other numeric types besides lat and lon, what are the min and max values?
+   
+   | Field | Min | Max |
+   | --- | --- | --- |
+   | Mileage | 0 | 100 |
+   | Haversine Distance | 0 | 11,911.91 |
+   | Trip Time (s) | 0 | 10,800 |
+   | Passengers | 0 | 9 |
+   | Rate Code | 0 | 210 |
 9. Create a chart which shows the average number of passengers each hour of the day.
+   ![Number of Passengers Per Hour](/img/perhour.png)
 10. Create a new CSV file which has only one out of every thousand rows.
+    - Done, 14,994 rows in new CSV (excluding header)
 11. Repeat step 8 with the reduced dataset and compare the two charts.
+    - Min/Max Numeric Values
+    
+    | Field | Min | Max |
+    | --- | --- | --- |
+    | Mileage | 0 | 47.19 |
+    | Haversine Distance | 0 | 5,382.158 |
+    | Trip Time (s) | 0 | 6,000 |
+    | Passengers | 0 | 6 |
+    | Rate Code | 0 | 5 |
+    - Average Number of Passengers Per Hour
+    ![Number of Passengers Per Hour, Small Dataset](/img/perhoursmall.png)
