@@ -25,8 +25,8 @@ def update_minmax(cmin, cmax, candidate):
         omax = candidate
     return omin, omax
 
-fn = "trip_data_4.csv"
-ofn = "trip_data_4_output_new.csv"
+fn = "trip_data_4_skip.csv"
+ofn = "trip_data_4_skip_output_new.csv"
 f = open(fn, 'r')
 reader = csv.reader(f)
 
@@ -93,6 +93,11 @@ bin_width = 0.25 # Width of bins
 overflow = 15 # Distance at which we stop caring about individual bins
 distance_bins = [0]*int((overflow/bin_width)+1) # Odometer distance
 haversine_bins = [0]*int((overflow/bin_width)+1) # Haversine distance
+
+minodo = None
+maxodo = None
+minhav = None
+maxhav = None
 
 minrc = None
 maxrc = None
@@ -182,6 +187,9 @@ for row in reader:
     avgodo = (avgodo*avgdistc + float(row[9])) / (avgdistc+1)
     avghav = (avghav*avgdistc + hav_dist) / (avgdistc+1)
     avgdistc += 1
+
+    minodo, maxodo = update_minmax(minodo, maxodo, float(row[9]))
+    minhav, maxhav = update_minmax(minhav, maxhav, hav_dist)
 
     minrc, maxrc = update_minmax(minrc, maxrc, int(row[3])) # Rate Code
     minpc, maxpc = update_minmax(minpc, maxpc, int(row[7])) # Passenger Count
@@ -277,6 +285,12 @@ with open(ofn, 'w', newline='') as outcsv:
     writer.writerow(["Haversine Histogram"])
     writer.writerow(binlabels)
     writer.writerow(haversine_bins)
+
+    writer.writerow(["Odometer Distance Range"])
+    writer.writerow([minodo, maxodo])
+
+    writer.writerow(["Haversine Distance Range"])
+    writer.writerow([minhav, maxhav])
 
     writer.writerow(["Travel Time Range"])
     writer.writerow([mintt, maxtt])
