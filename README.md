@@ -22,4 +22,34 @@ Dataset: Group 4
    - dropoff_longitude: The longitude read by the GPS where the passengers were dropped off
    - dropoff_latitude: The latitude read by the GPS where the passengers were dropped off
 3. Give some sample data for each field.
-   -
+| medallion | hack_license | vendor_id | rate_code | store_and_fwd_flag | pickup_datetime | dropoff_datetime | passenger_count | trip_time_in_secs | trip_distance | pickup_longitude | pickup_latitude | dropoff_longitude | dropoff_latitude |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 91F6EB84975BBC867E32CB113C7C2CD5 | AD8751110E6292079EB10EB9481FE1A6 | CMT | 1 | N | 2013-04-04 18:47:45 | 2013-04-04 19:00:25 | 1 | 759 | 2.50 | -73.957855 | 40.76532 | -73.976273 | 40.785648 |
+| E3FB99712D99954D259002EBAF4AD015 | 506DBCE23867EACF170EFEBDA3143E2A | VTS | 1 | `NULL` | 2013-04-13 09:27:00 | 2013-04-13 09:35:00 | 1 | 480 | 1.28 | -73.977631 | 40.725807 | -73.999023 | 40.734047 |
+| 78303FC5414D9061274F6DB06EC81689 | 5AC719AA22EA1B468A3FB4556153D6F4 | VTS | 1 | `NULL` | 2013-04-13 08:14:00 | 2013-04-13 08:24:00 | 6 | 600 | 3.18 | -74.006187 | 40.739758 | -74.014252 | 40.709637 |
+| 483E1823636571D425A74CA6B5FA7909 | A8286CE34C7095E6F09BB7A4BA566F69 | VTS | 1 | `NULL` | 2013-04-13 03:40:00 | 2013-04-13 03:52:00 | 1 | 720 | 3.70 | -73.991913 | 40.725792 | -73.984901 | 40.767586 |
+| 1D14BCEB15273526346FD543517404D8 | 9F959826431402B410E0B8FA23160AFE | VTS | 1 | `NULL` | 2013-04-13 12:30:00 | 2013-04-13 12:34:00 | 5 | 240 | .42 | -73.989128 | 40.740372 | -73.98513 | 40.742271 |
+| 27328100F8702AD2DA7BB48912886CFF | 030C2C1ED4F1CEA429F4DA3DAE4F8B62 | VTS | 1 | `NULL` | 2013-04-13 09:09:00 | 2013-04-13 09:19:00 | 5 | 600 | 2.60 | -73.937439 | 40.824074 | -73.96627 | 40.80394 |
+| 89E7FA35C19DB9FA73C7635177216E0C | 2E81DD615637E20C7F50DD58E2FB9BB3 | VTS | 1 | `NULL` | 2013-04-13 13:21:00 | 2013-04-13 13:28:00 | 1 | 420 | .96 | -73.997253 | 40.722458 | -73.989777 | 40.734608 |
+4. What MySQL data types/len would you need to store each of the fields?
+   - medallion: `char(32)`
+   - hack_license: `char(32)`
+   - vendor_id: `char(3)` **\# Haven't seen any vendor IDs longer than 3 characters**
+   - rate_code: `int(4)`
+   - store_and_fwd_flag: `char(1)` **\# Appears to be a bool but stored as Y, N, or `NULL`**
+   - pickup_datetime: `datetime`
+   - dropoff_datetime: `datetime`
+   - passenger_count: `int(4)`
+   - trip_time_in_secs: `int(16)`
+   - trip_distance: `decimal(4,2)`
+   - pickup_longitude: `decimal(8,6)`
+   - pickup_latitude: `decimal(8,6)`
+   - dropoff_longitude: `decimal(8,6)`
+   - dropoff_latitude: `decimal(8,6)`
+5. What is the geographic range of your data?
+   - Constrained to global limits:
+     - Minimum corner: -74.069908, -159.435000
+     - Maximum corner: 74.035930, 100.987900
+     - 
+6. What is the average trip distance?
+   - Odometer distance: 
