@@ -26,7 +26,7 @@ def update_minmax(cmin, cmax, candidate):
     return omin, omax
 
 fn = "trip_data_4.csv"
-ofn = "trip_data_4_output.csv"
+ofn = "trip_data_4_output_new.csv"
 f = open(fn, 'r')
 reader = csv.reader(f)
 
@@ -85,6 +85,10 @@ avgdolatc = 0
 avgdolon = 0
 avgdolonc = 0
 
+avgodo = 0
+avghav = 0
+avgdistc = 0
+
 bin_width = 0.25 # Width of bins
 overflow = 15 # Distance at which we stop caring about individual bins
 distance_bins = [0]*int((overflow/bin_width)+1) # Odometer distance
@@ -98,6 +102,11 @@ maxpc = None
 
 mintt = None
 maxtt = None
+
+vid_values = {}
+rc_values = {}
+saff_values = {}
+pc_values = {}
 
 pph = {}
 for i in range(24):
@@ -118,7 +127,7 @@ for row in reader:
         maxdt = dodt
     if row[11] != '':
         pulat = float(row[11])
-        if pulat is not None and pulat != 0 and -90 < pulat < 90:
+        if pulat is not None and pulat != 0 and 39.95258 < pulat < 41.7658:
             if maxlat is None:
                 maxlat = pulat
             else:
@@ -131,7 +140,7 @@ for row in reader:
             avgpulatc += 1
     if row[10] != '':
         pulon = float(row[10])
-        if pulon is not None and pulon != 0 and -180 < pulon < 180:
+        if pulon is not None and pulon != 0 and -75.16522 < pulon < -72.67337:
             if maxlon is None:
                 maxlon = pulon
             else:
@@ -144,14 +153,14 @@ for row in reader:
             avgpulonc += 1
     if row[13] != '':
         dolat = float(row[13])
-        if dolat is not None and dolat != 0 and -90 < dolat < 90:
+        if dolat is not None and dolat != 0 and 39.95258 < dolat < 41.7658:
             maxlat = max(maxlat, dolat)
             minlat = min(minlat, dolat)
             avgdolat = (avgdolat*avgdolatc + dolat) / (avgdolatc+1)
             avgdolatc += 1
     if row[12] != '':
         dolon = float(row[12])
-        if dolon is not None and dolon != 0 and -180 < dolon < 180:
+        if dolon is not None and dolon != 0 and -75.16522 < dolon < -72.67337:
             maxlon = max(maxlon, dolon)
             minlon = min(minlon, dolon)
             avgdolon = (avgdolon*avgdolonc + dolon) / (avgdolonc+1)
@@ -170,6 +179,10 @@ for row in reader:
         hav_bin = int(overflow / bin_width)
     haversine_bins[hav_bin] += 1
 
+    avgodo = (avgodo*avgdistc + float(row[9])) / (avgdistc+1)
+    avghav = (avghav*avgdistc + hav_dist) / (avgdistc+1)
+    avgdistc += 1
+
     minrc, maxrc = update_minmax(minrc, maxrc, int(row[3])) # Rate Code
     minpc, maxpc = update_minmax(minpc, maxpc, int(row[7])) # Passenger Count
     mintt, maxtt = update_minmax(mintt, maxtt, int(row[8])) # Trip Time
@@ -183,6 +196,39 @@ for row in reader:
         pph[puhour][pudate] = int(row[7])
     else:
         pph[puhour][pudate] += int(row[7])
+
+    # Distinct Values
+    # Vendor ID
+    if row[2] == "":
+        row[2] = "NULL"
+    if row[2] not in vid_values.keys():
+        vid_values[row[2]] = 1
+    else:
+        vid_values[row[2]] += 1
+
+    # Rate Code
+    if row[3] == "":
+        row[3] = "NULL"
+    if row[3] not in rc_values.keys():
+        rc_values[row[3]] = 1
+    else:
+        rc_values[row[3]] += 1
+
+    # Store and Forward Flag
+    if row[4] == "":
+        row[4] = "NULL"
+    if row[4] not in saff_values.keys():
+        saff_values[row[4]] = 1
+    else:
+        saff_values[row[4]] += 1
+
+    # Passenger Count
+    if row[7] == "":
+        row[7] = "NULL"
+    if row[7] not in pc_values.keys():
+        pc_values[row[7]] = 1
+    else:
+        pc_values[row[7]] += 1
 
     if n % printevery == 0:
         print(n)
@@ -214,11 +260,15 @@ with open(ofn, 'w', newline='') as outcsv:
     writer.writerow(["Records: ", n])
     writer.writerow(["Datetime Range"])
     writer.writerow([mindtstr, maxdtstr])
+
     writer.writerow(["Area Range"])
     writer.writerow(["Min Lat", "Min Lon", '', "Max Lat", "Max Lon"])
     writer.writerow([minlat, minlon, '', maxlat, maxlon])
+    writer.writerow(["Avg Odometer Distance: ", avgodo])
+    writer.writerow(["Avg Haversine Distance: ", avghav])
     writer.writerow(["Avg Pickup", '', '', "Avg Dropoff"])
     writer.writerow([avgpulat, avgpulon, '', avgdolat, avgdolon])
+
     writer.writerow(["Distance Histogram"])
     binlabels = list(range(int(overflow/bin_width)+1))
     binlabels = [bin_width * x for x in binlabels]
@@ -227,11 +277,36 @@ with open(ofn, 'w', newline='') as outcsv:
     writer.writerow(["Haversine Histogram"])
     writer.writerow(binlabels)
     writer.writerow(haversine_bins)
+
+    writer.writerow(["Travel Time Range"])
+    writer.writerow([mintt, maxtt])
+
     writer.writerow(["Passengers Per Hour"])
     pph_keys = avg_pph.keys()
     #print(pph_keys)
     writer.writerow(pph_keys)
     pph_values = [avg_pph[x] for x in pph_keys]
     writer.writerow(pph_values)
+
+    writer.writerow(["Vendor IDs"])
+    vid_keys = list(vid_values.keys())
+    vid_keys.sort()
+    writer.writerow(vid_keys)
+    writer.writerow([vid_values[x] for x in vid_keys])
+    writer.writerow(["Rate Codes"])
+    rc_keys = list(rc_values.keys())
+    rc_keys.sort()
+    writer.writerow(rc_keys)
+    writer.writerow([rc_values[x] for x in rc_keys])
+    writer.writerow(["Store and Forward Flags"])
+    saff_keys = list(saff_values.keys())
+    saff_keys.sort()
+    writer.writerow(saff_keys)
+    writer.writerow([saff_values[x] for x in saff_keys])
+    writer.writerow(["Passenger Counts"])
+    pc_keys = list(pc_values.keys())
+    pc_keys.sort()
+    writer.writerow(pc_keys)
+    writer.writerow([pc_values[x] for x in pc_keys])
 
 print("Inspection complete, look at "+ofn+" for results")
