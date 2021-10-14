@@ -61,10 +61,12 @@ Dataset: Group 4
    - ![Haversine Distance Histogram](/img/havhist.png)
 7. What are the distinct values for each field?
    - Vendor ID: 
+   
    | Vendor ID | Count |
    | CMT  | 7,582,519 |
    | VTS | 7,517,943 |
    - Rate Codes: 
+   
    | Rate Code | Count |
    | --- | --- |
    | 0 | 1,145 |
@@ -83,12 +85,14 @@ Dataset: Group 4
    | 208 | 1 |
    | 210 | 14 |
    - Store and Forward Flags
+   
    | Flag | Count |
    | --- | --- |
    | `NULL` | 7,518,657 |
    | N | 7,451,835 |
    | Y | 129,970 |
    - Passenger Counts
+   
    | Passenger Count | Count |
    | --- | --- |
    | 0 | 229|
