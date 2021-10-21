@@ -25,8 +25,8 @@ def update_minmax(cmin, cmax, candidate):
         omax = candidate
     return omin, omax
 
-fn = "trip_data_4.csv"
-ofn = "trip_data_4_output_new.csv"
+fn = "trip_data_4_skip.csv"
+ofn = "trip_data_4_skip_output_new.csv"
 f = open(fn, 'r')
 reader = csv.reader(f)
 
@@ -99,11 +99,11 @@ maxodo = None
 minhav = None
 maxhav = None
 
-odoq1 = 1.0784
-odoq3 = 3.2083
+odoq1 = 1.0693
+odoq3 = 3.1883
 
-havq1 = 0.7863
-havq3 = 2.4739
+havq1 = 0.7777
+havq3 = 2.4579
 
 outlier_iqr_thresh = 1.5
 # Outliers are considered to be greater than Q3 + (IQR_THRESH * IQR)

@@ -59,16 +59,18 @@ Dataset: Group 4
    ![Odometer Distance Histogram](/img/odohist.png)
    - Haversine distance: 11.55658
    ![Haversine Distance Histogram](/img/havhist.png)
-   - The average haversine distance is way larger than the odometer distance, which it should be the other way around -- cabs must follow city blocks, so going diagonally across a block would count for `2*block_length` on the odometer, but only about `1.4*block_length` as far as haversine is concerned. The main culprit here is the obnoxiously far away lat/lon coordinates, which despite being rare, are so erroneous that they throw off the average by a significant margin.
+   - The average haversine distance is way larger than the odometer distance, which should not be the case. The haversine distance measures a straight line between two points on the Earth's surface without cutting through the ground. For shorter distances, this isn't too much different than just a straight line shot from start to finish, or "as the crow flies." Taxis, on the other hand, must follow city roads and cannot (usually) cut diagonally across blocks. This is also known as the "Manhattan distance," due to the grid-like road layout in Manhattan. This means that typically, the Manhattan distance between two points should be longer than the Haversine. Going diagonally across a block would count for `2*block_length` on the odometer, but only about `1.4*block_length` as far as haversine is concerned. The main culprit here is the obnoxiously far away lat/lon coordinates, which despite being rare, are so erroneous that they throw off the average by a significant margin.
    - To resolve this, I estimated the inter-quartile range (IQR) of both the odometer and haversine distances from the histograms. First I divided the number of data points by 4, giving me which data point (when sorted) represents the first quartile. This number is used to initialize a counter. Then, for each bin, if the number of records in a given bin is less than the value of the counter, that number is decremented from the counter. Once the value of the counter is less than the number of records in the current bin, we know that the value of the quartile must exist within the current bin. I then calculate how far through the current bin the quartile is by dividing the counter by the number of records in the bin, then interpolating the value of a record that far through the bin (assuming a linear distribution of records throughout the bin). While this method may not provide an exact value of the quartiles, it should be close enough, and is significantly faster to calculate than sorting all 15 million rows. The first and third quartiles for both the odometer and haversine distances are:
 
    | Odometer Q1 | Odometer Q3 | Haversine Q1 | Haversine Q3 |
    | --- | --- | --- | --- |
-   | 123 | 123 | 123 | 123 |
-   - Using these quartiles, the inter quartile range can be calculated by subtracting Q3 from Q1. A common outlier threshold is given as `[Q1 - 1.5\*IQR, Q3 + 1.5\*IQR]`. After the quartiles were calculated, the script was run a second time to re-calculate the average distances with outliers removed.
-   - Average Odometer distance (outliers removed): XXXX
-   - Average Haversine distance (outliers removed): XXXX
-   - This makes a lot more sense, as the average odometer distance is slightly larger than the average haversine distance, with the ratio being roughly what is expected when comparing an "as the crow flies" distance, measuring directly point-to-point, to a (quite literally) "Manhattan" distance, with only measuring along the gridlines.
+   | 1.0693 | 3.1883 | 0.7777 | 2.4579 |
+   - Using these quartiles, the IQR can be calculated by subtracting Q3 from Q1. A common outlier threshold is given as `[Q1 - 1.5*IQR, Q3 + 1.5*IQR]`. After the quartiles were calculated, the script was run a second time to re-calculate the average distances with outliers removed.
+   - Average Odometer distance (outliers removed): 1.9697
+     - 1,433,519 outliers removed (9.49% of records)
+   - Average Haversine distance (outliers removed): 1.5221
+     - 1,267,172 outliers removed (8.39% of records)
+   - This makes a lot more sense, as the average odometer distance is slightly larger than the average haversine distance. The actual ratio of odometer to haversine distance is 1.2941, which is pretty close to the theoretical ratio of 1.4142 (or the square root of 2).
 7. What are the distinct values for each field?
    - Vendor ID:
 
@@ -128,15 +130,6 @@ Dataset: Group 4
    ![Number of Passengers Per Hour](/img/perhour.png)
 10. Create a new CSV file which has only one out of every thousand rows.
     - Done, 14,994 rows in new CSV (excluding header)
-11. Repeat step 8 with the reduced dataset and compare the two charts.
-    - Min/Max Numeric Values
-
-    | Field | Min | Max |
-    | --- | --- | --- |
-    | Mileage | 0 | 47.19 |
-    | Haversine Distance | 0 | 5,382.158 |
-    | Trip Time (s) | 0 | 6,000 |
-    | Passengers | 0 | 6 |
-    | Rate Code | 0 | 5 |
-    - Average Number of Passengers Per Hour
+11. Repeat step 9 with the reduced dataset and compare the two charts.
     ![Number of Passengers Per Hour, Small Dataset](/img/perhoursmall.png)
+    - Aside from the scale being used, these two charts appear nearly identical. There are some minor differences, such as the 4pm hour taking slightly more people in the reduced dataset than in the full dataset, however the general trend is maintained in both charts. This is likely due to the fact that the reduced dataset was obtained by taking regular samples throughout the entire dataset, which appears to be somewhat sorted by date and time.
