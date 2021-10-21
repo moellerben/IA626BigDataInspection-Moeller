@@ -63,12 +63,12 @@ Dataset: Group 4
    - To resolve this, I estimated the inter-quartile range (IQR) of both the odometer and haversine distances from the histograms. First I divided the number of data points by 4, giving me which data point (when sorted) represents the first quartile. This number is used to initialize a counter. Then, for each bin, if the number of records in a given bin is less than the value of the counter, that number is decremented from the counter. Once the value of the counter is less than the number of records in the current bin, we know that the value of the quartile must exist within the current bin. I then calculate how far through the current bin the quartile is by dividing the counter by the number of records in the bin, then interpolating the value of a record that far through the bin (assuming a linear distribution of records throughout the bin). While this method may not provide an exact value of the quartiles, it should be close enough, and is significantly faster to calculate than sorting all 15 million rows.
    - Using these quartiles, the IQR can be calculated by subtracting Q3 from Q1. A common outlier threshold is given as `[Q1 - 1.5*IQR, Q3 + 1.5*IQR]`. After the quartiles were calculated, the script was run a second time to re-calculate the average distances with outliers removed.
 
-   | | Odometer | Haversine |
-   | --- | --- | --- |
-   | Lower Outlier Threshold | -2.1092 | -0.9025 |
-   | 1st Quartile | 1.0693 | 0.7777 |
-   | 3rd Quartile | 3.1883 | 2.4579 |
-   | Upper Outlier Threshold | 6.3668 | 4.1381 |
+     | | Odometer | Haversine |
+     | --- | --- | --- |
+     | Lower Outlier Threshold | -2.1092 | -0.9025 |
+     | 1st Quartile | 1.0693 | 0.7777 |
+     | 3rd Quartile | 3.1883 | 2.4579 |
+     | Upper Outlier Threshold | 6.3668 | 4.1381 |
    - Average Odometer distance (outliers removed): 1.9697
      - 1,433,519 outliers removed (9.49% of records)
    - Average Haversine distance (outliers removed): 1.5221
