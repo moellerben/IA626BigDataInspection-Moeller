@@ -59,15 +59,25 @@ Dataset: Group 4
    ![Odometer Distance Histogram](/img/odohist.png)
    - Haversine distance: 11.55658
    ![Haversine Distance Histogram](/img/havhist.png)
+   - The average haversine distance is way larger than the odometer distance, which it should be the other way around -- cabs must follow city blocks, so going diagonally across a block would count for `2*block_length` on the odometer, but only about `1.4*block_length` as far as haversine is concerned. The main culprit here is the obnoxiously far away lat/lon coordinates, which despite being rare, are so erroneous that they throw off the average by a significant margin.
+   - To resolve this, I estimated the inter-quartile range (IQR) of both the odometer and haversine distances from the histograms. First I divided the number of data points by 4, giving me which data point (when sorted) represents the first quartile. This number is used to initialize a counter. Then, for each bin, if the number of records in a given bin is less than the value of the counter, that number is decremented from the counter. Once the value of the counter is less than the number of records in the current bin, we know that the value of the quartile must exist within the current bin. I then calculate how far through the current bin the quartile is by dividing the counter by the number of records in the bin, then interpolating the value of a record that far through the bin (assuming a linear distribution of records throughout the bin). While this method may not provide an exact value of the quartiles, it should be close enough, and is significantly faster to calculate than sorting all 15 million rows. The first and third quartiles for both the odometer and haversine distances are:
+
+   | Odometer Q1 | Odometer Q3 | Haversine Q1 | Haversine Q3 |
+   | --- | --- | --- | --- |
+   | 123 | 123 | 123 | 123 |
+   - Using these quartiles, the inter quartile range can be calculated by subtracting Q3 from Q1. A common outlier threshold is given as `[Q1 - 1.5\*IQR, Q3 + 1.5\*IQR]`. After the quartiles were calculated, the script was run a second time to re-calculate the average distances with outliers removed.
+   - Average Odometer distance (outliers removed): XXXX
+   - Average Haversine distance (outliers removed): XXXX
+   - This makes a lot more sense, as the average odometer distance is slightly larger than the average haversine distance, with the ratio being roughly what is expected when comparing an "as the crow flies" distance, measuring directly point-to-point, to a (quite literally) "Manhattan" distance, with only measuring along the gridlines.
 7. What are the distinct values for each field?
-   - Vendor ID: 
-   
+   - Vendor ID:
+
    | Vendor ID | Count |
    | --- | --- |
    | CMT  | 7,582,519 |
    | VTS | 7,517,943 |
-   - Rate Codes: 
-   
+   - Rate Codes:
+
    | Rate Code | Count |
    | --- | --- |
    | 0 | 1,145 |
@@ -86,18 +96,18 @@ Dataset: Group 4
    | 208 | 1 |
    | 210 | 14 |
    - Store and Forward Flags
-   
+
    | Flag | Count |
    | --- | --- |
    | `NULL` | 7,518,657 |
    | N | 7,451,835 |
    | Y | 129,970 |
    - Passenger Counts
-   
+
    | Passenger Count | Count |
    | --- | --- |
    | 0 | 229|
-   | 1 | 10,707,067 | 
+   | 1 | 10,707,067 |
    | 2 | 1,985,741 |
    | 3 | 609,849 |
    | 4 | 298,146 |
@@ -106,7 +116,7 @@ Dataset: Group 4
    | 8 | 1 |
    | 9 | 1 |
 8. For other numeric types besides lat and lon, what are the min and max values?
-   
+
    | Field | Min | Max |
    | --- | --- | --- |
    | Mileage | 0 | 100 |
@@ -120,7 +130,7 @@ Dataset: Group 4
     - Done, 14,994 rows in new CSV (excluding header)
 11. Repeat step 8 with the reduced dataset and compare the two charts.
     - Min/Max Numeric Values
-    
+
     | Field | Min | Max |
     | --- | --- | --- |
     | Mileage | 0 | 47.19 |

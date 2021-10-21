@@ -25,8 +25,8 @@ def update_minmax(cmin, cmax, candidate):
         omax = candidate
     return omin, omax
 
-fn = "trip_data_4_skip.csv"
-ofn = "trip_data_4_skip_output_new.csv"
+fn = "trip_data_4.csv"
+ofn = "trip_data_4_output_new.csv"
 f = open(fn, 'r')
 reader = csv.reader(f)
 
@@ -99,6 +99,23 @@ maxodo = None
 minhav = None
 maxhav = None
 
+odoq1 = 1.0784
+odoq3 = 3.2083
+
+havq1 = 0.7863
+havq3 = 2.4739
+
+outlier_iqr_thresh = 1.5
+# Outliers are considered to be greater than Q3 + (IQR_THRESH * IQR)
+# or less than Q1 - (IQR_THRESH * IQR)
+
+avgodo_noout = 0
+avgodo_noout_c = 0
+avgodo_outc = 0
+avghav_noout = 0
+avghav_noout_c = 0
+avghav_outc = 0
+
 minrc = None
 maxrc = None
 
@@ -116,6 +133,17 @@ pc_values = {}
 pph = {}
 for i in range(24):
     pph[str(i).zfill(2)] = {}
+
+odoiqr = None
+haviqr = None
+if odoq1 is not None and odoq3 is not None:
+    odoiqr = odoq3 - odoq1
+else:
+    avgodo_noout = "Not Calculated"
+if havq1 is not None and havq3 is not None:
+    haviqr = havq3 - havq1
+else:
+    avghav_noout = "Not Calculated"
 
 n = -1
 printevery = 100000
@@ -187,6 +215,19 @@ for row in reader:
     avgodo = (avgodo*avgdistc + float(row[9])) / (avgdistc+1)
     avghav = (avghav*avgdistc + hav_dist) / (avgdistc+1)
     avgdistc += 1
+
+    if odoq1 is not None and odoq3 is not None:
+        if (odoq1 - (outlier_iqr_thresh * odoiqr)) < float(row[9]) < (odoq3 + (outlier_iqr_thresh * odoiqr)):
+            avgodo_noout = (avgodo_noout*avgodo_noout_c + float(row[9])) / (avgodo_noout_c+1)
+            avgodo_noout_c += 1
+        else:
+            avgodo_outc += 1
+    if havq1 is not None and havq3 is not None:
+        if (havq1 - (outlier_iqr_thresh * haviqr)) < hav_dist < (havq3 + (outlier_iqr_thresh * haviqr)):
+            avghav_noout = (avghav_noout*avghav_noout_c + hav_dist) / (avghav_noout_c+1)
+            avghav_noout_c += 1
+        else:
+            avghav_outc += 1
 
     minodo, maxodo = update_minmax(minodo, maxodo, float(row[9]))
     minhav, maxhav = update_minmax(minhav, maxhav, hav_dist)
@@ -263,6 +304,47 @@ for hour in pph.keys():
     avg_pph[hour] = sum/count
 #print(avg_pph)
 
+# Get histogram quartiles
+odoq1calc = None
+odoq3calc = None
+q1_count = n/4
+q3_count = 3*n/4
+q1done = False
+for i in range(int(overflow/bin_width)+1):
+    if q1_count > distance_bins[i] and not q1done:
+        q1_count -= distance_bins[i]
+    elif q1done is not True:
+        # Get the percentage of how far through the bin we are
+        pct = q1_count / distance_bins[i]
+        odoq1calc = (bin_width*i) + (pct*bin_width)
+        q1done = True
+    if q3_count > distance_bins[i]:
+        q3_count -= distance_bins[i]
+    else:
+        pct = q3_count / distance_bins[i]
+        odoq3calc = (bin_width*i) + (pct*bin_width)
+        break
+
+havq1calc = None
+havq3calc = None
+q1_count = n/4
+q3_count = 3*n/4
+q1done = False
+for i in range(int(overflow/bin_width)+1):
+    if q1_count > haversine_bins[i] and not q1done:
+        q1_count -= haversine_bins[i]
+    elif q1done is not True:
+        # Get the percentage of how far through the bin we are
+        pct = q1_count / haversine_bins[i]
+        havq1calc = (bin_width*i) + (pct*bin_width)
+        q1done = True
+    if q3_count > haversine_bins[i]:
+        q3_count -= haversine_bins[i]
+    else:
+        pct = q3_count / haversine_bins[i]
+        havq3calc = (bin_width*i) + (pct*bin_width)
+        break
+
 with open(ofn, 'w', newline='') as outcsv:
     writer = csv.writer(outcsv)
     writer.writerow(["Records: ", n])
@@ -277,14 +359,21 @@ with open(ofn, 'w', newline='') as outcsv:
     writer.writerow(["Avg Pickup", '', '', "Avg Dropoff"])
     writer.writerow([avgpulat, avgpulon, '', avgdolat, avgdolon])
 
+    writer.writerow(["Avg Odometer Distance (No Outliers): ", avgodo_noout, "Odo Outliers Found: ", avgodo_outc])
+    writer.writerow(["Avg Haversine Distance (No Outliers): ", avghav_noout, "Hav Outliers Found: ", avghav_outc])
+
     writer.writerow(["Distance Histogram"])
     binlabels = list(range(int(overflow/bin_width)+1))
     binlabels = [bin_width * x for x in binlabels]
     writer.writerow(binlabels)
     writer.writerow(distance_bins)
+    writer.writerow(["Distance Q1", "Distance Q3"])
+    writer.writerow([odoq1calc, odoq3calc])
     writer.writerow(["Haversine Histogram"])
     writer.writerow(binlabels)
     writer.writerow(haversine_bins)
+    writer.writerow(["Haversine Q1", "Haversine Q3"])
+    writer.writerow([havq1calc, havq3calc])
 
     writer.writerow(["Odometer Distance Range"])
     writer.writerow([minodo, maxodo])
