@@ -73,7 +73,7 @@ Dataset: Group 4
      - 1,433,519 outliers removed (9.49% of records)
    - Average Haversine distance (outliers removed): 1.5221
      - 1,267,172 outliers removed (8.39% of records)
-   - This makes a lot more sense, as the average odometer distance is slightly larger than the average haversine distance. The actual ratio of odometer to haversine distance is 1.2941, which is pretty close to the theoretical ratio of 1.4142 (or the square root of 2).
+   - This makes a lot more sense, as the average odometer distance is slightly larger than the average haversine distance. The actual ratio of odometer to haversine distance is 1.2941, which is pretty close to the theoretical ratio of 1.4142 (or the square root of 2). This is especially true when our original averages had a ratio of 0.2477.
 7. What are the distinct values for each field?
    - Vendor ID:
 
